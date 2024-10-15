@@ -1,18 +1,18 @@
 package main
 
 import (
-    "log"
-    "myapp/internal/config"
-    "myapp/internal/database"
-    "myapp/internal/handlers"
-    "myapp/internal/repository"
-    "myapp/internal/services"
-    "net/http"
+	"log"
+	"net/http"
+	"testHive/database"
+	"testHive/internal/config"
+	"testHive/internal/handlers"
+	"testHive/internal/repository"
+	"testHive/internal/services"
 
-    "github.com/gorilla/mux"
-    _ "github.com/lib/pq"
-    httpSwagger "github.com/swaggo/http-swagger"
-    _ "myapp/docs" // подключение автоматически сгенерированной документации Swagger
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+	httpSwagger "github.com/swaggo/http-swagger"
+	// _ "testHive/docs" // подключение автоматически сгенерированной документации Swagger
 )
 
 // @title MyApp API
