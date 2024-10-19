@@ -11,19 +11,25 @@ import (
 
 type AssetHandler struct {
 	AssetService *services.AssetService
+	UserHandler  *UserHandler
 }
 
-func NewAssetHandler(assetService *services.AssetService) *AssetHandler {
-	return &AssetHandler{AssetService: assetService}
+func NewAssetHandler(assetService *services.AssetService, userHandler *UserHandler) *AssetHandler {
+	return &AssetHandler{AssetService: assetService, UserHandler: userHandler}
 }
 
 func (h *AssetHandler) AddAsset(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.UserHandler.Authorize(r)
+	if err != nil {
+		http.Error(w, "Неавторизованный доступ", http.StatusUnauthorized)
+		return
+	}
+
 	var asset models.Asset
 	if err := json.NewDecoder(r.Body).Decode(&asset); err != nil {
 		http.Error(w, "Неверный запрос", http.StatusBadRequest)
 		return
 	}
-	userID := 1 // Получение userID из контекста или токена
 	if err := h.AssetService.AddAsset(userID, &asset); err != nil {
 		http.Error(w, "Ошибка при добавлении актива", http.StatusInternalServerError)
 		return
@@ -32,7 +38,11 @@ func (h *AssetHandler) AddAsset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AssetHandler) GetUserAssets(w http.ResponseWriter, r *http.Request) {
-	userID := 1 // Получение userID из контекста или токена
+	userID, err := h.UserHandler.Authorize(r)
+	if err != nil {
+		http.Error(w, "Неавторизованный доступ", http.StatusUnauthorized)
+		return
+	}
 	assets, err := h.AssetService.GetUserAssets(userID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении активов", http.StatusInternalServerError)

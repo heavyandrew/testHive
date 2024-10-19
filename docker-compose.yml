@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
   db:
     image: postgres:13
@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./database/migrations:/migrations
 
   app:
     build: .
@@ -25,6 +26,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - .:/app
 
 volumes:
   db_data:

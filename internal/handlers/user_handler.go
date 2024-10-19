@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testHive/internal/auth"
 	"testHive/internal/models"
@@ -16,6 +17,25 @@ type UserHandler struct {
 
 func NewUserHandler(userService *services.UserService, jwtSecret string) *UserHandler {
 	return &UserHandler{UserService: userService, JWTSecret: jwtSecret}
+}
+
+// Authorize проверяет JWT токен и возвращает userID
+func (h *UserHandler) Authorize(r *http.Request) (int, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return 0, http.ErrNoCookie
+	}
+
+	// Извлечение токена из заголовка Authorization
+	tokenStr := authHeader[len("Bearer "):]
+
+	// Проверка и валидация JWT токена
+	claims, err := auth.ValidateJWT(tokenStr, h.JWTSecret)
+	if err != nil {
+		return 0, err
+	}
+
+	return claims.UserID, nil
 }
 
 // Register godoc
@@ -36,7 +56,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := h.UserService.RegisterUser(&user); err != nil {
-		http.Error(w, "Ошибка при регистрации", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Ошибка при регистрации: %s", err), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -70,5 +90,5 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ошибка при создании токена", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+	json.NewEncoder(w).Encode(map[string]string{"access_token": token})
 }

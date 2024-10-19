@@ -41,7 +41,7 @@ func main() {
 
 	// Создаем обработчики
 	userHandler := handlers.NewUserHandler(userService, cfg.JWTSecret)
-	assetHandler := handlers.NewAssetHandler(assetService)
+	assetHandler := handlers.NewAssetHandler(assetService, userHandler)
 
 	// Настройка маршрутов
 	r := mux.NewRouter()
