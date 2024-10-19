@@ -1,8 +1,8 @@
 package services
 
 import (
-	"myapp/internal/models"
-	"myapp/internal/repository"
+	"testHive/internal/models"
+	"testHive/internal/repository"
 )
 
 // AssetService служит для обработки операций с активами

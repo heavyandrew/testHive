@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/jmoiron/sqlx"
-	"myapp/internal/models"
+	"testHive/internal/models"
 )
 
 // AssetRepository интерфейс для операций с активами

@@ -5,29 +5,29 @@ import (
 	"time"
 )
 
-var jwtKey = []byte("my_secret_key")
-
 type Claims struct {
-	Username string `json:"username"`
+	UserID int `json:"user_id"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(username string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+// GenerateJWT создает JWT токен для указанного пользователя с заданным сроком действия и секретным ключом
+func GenerateJWT(userID int, secret string, duration time.Duration) (string, error) {
+	expirationTime := time.Now().Add(duration)
 	claims := &Claims{
-		Username: username,
+		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString([]byte(secret))
 }
 
-func ValidateJWT(tokenStr string) (*Claims, error) {
+// ValidateJWT проверяет JWT токен и возвращает claims, если токен действителен
+func ValidateJWT(tokenStr, secret string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return []byte(secret), nil
 	})
 	if err != nil || !token.Valid {
 		return nil, err
