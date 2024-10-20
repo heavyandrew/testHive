@@ -17,7 +17,7 @@ DB_PASSWORD=postgres
 DB_NAME=testHive
 
 # Секрет для JWT
-# что сгенеренное на https://jwtsecret.com/generate
+# что-то сгенеренное на https://jwtsecret.com/generate
 JWT_SECRET=
 ```
 ### Запуск
