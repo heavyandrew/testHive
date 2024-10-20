@@ -1,10 +1,8 @@
 package models
 
-// Asset представляет актив, принадлежащий пользователю
 type Asset struct {
 	ID          int     `json:"id" db:"id"`
-	UserID      int     `json:"user_id" db:"user_id"`
-	Name        string  `json:"name" db:"name"`
+	Name        string  `json:"name" db:"name" validate:"required"`
 	Description string  `json:"description" db:"description"`
-	Price       float64 `json:"price" db:"price"`
+	Price       float64 `json:"price" db:"price" validate:"gt=-1"`
 }

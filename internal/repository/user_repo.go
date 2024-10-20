@@ -2,12 +2,10 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/jmoiron/sqlx"
 	"testHive/internal/models"
 )
 
-// UserRepository интерфейс для операций с пользователями
 type UserRepository struct {
 	DB *sqlx.DB
 }
@@ -18,10 +16,6 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 
 func (r *UserRepository) CreateUser(user *models.User) error {
 	query := `INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id`
-	_, err := r.GetUserByUsername(user.Username)
-	if err == nil {
-		return fmt.Errorf("user already exists")
-	}
 	return r.DB.QueryRow(query, user.Username, user.PasswordHash).Scan(&user.ID)
 }
 

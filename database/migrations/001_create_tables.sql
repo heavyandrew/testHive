@@ -6,8 +6,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS assets (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL CHECK (LENGTH(name) > 0),
     description TEXT,
-    price NUMERIC(10, 2) NOT NULL
+    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0)
+);
+
+CREATE TABLE user_assets (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    asset_id INT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

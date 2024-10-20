@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"testHive/internal/auth"
 	"testHive/internal/models"
 	"testHive/internal/services"
@@ -19,17 +20,14 @@ func NewUserHandler(userService *services.UserService, jwtSecret string) *UserHa
 	return &UserHandler{UserService: userService, JWTSecret: jwtSecret}
 }
 
-// Authorize проверяет JWT токен и возвращает userID
 func (h *UserHandler) Authorize(r *http.Request) (int, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return 0, http.ErrNoCookie
 	}
 
-	// Извлечение токена из заголовка Authorization
 	tokenStr := authHeader[len("Bearer "):]
 
-	// Проверка и валидация JWT токена
 	claims, err := auth.ValidateJWT(tokenStr, h.JWTSecret)
 	if err != nil {
 		return 0, err
@@ -38,21 +36,30 @@ func (h *UserHandler) Authorize(r *http.Request) (int, error) {
 	return claims.UserID, nil
 }
 
-// Register godoc
-// @Summary Регистрация пользователя
-// @Description Создание нового пользователя
+// Register - godoc
+// @Summary Register a new user
+// @Description Register a new user with username and password
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   user  body  models.User  true  "User"
-// @Success 201
-// @Failure 400 {string} string "Invalid input"
-// @Failure 500 {string} string "Could not create user"
-// @Router /register [post]
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User data"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/register [post]
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Неверный запрос", http.StatusBadRequest)
+		return
+	}
+	username, err := h.UserService.UserAlreadyExists(&user)
+	if err != nil {
+		http.Error(w, "Не смогли проверить, что пользователь уже существует", http.StatusInternalServerError)
+		return
+	}
+	if username != nil {
+		http.Error(w, "Пользователь с таким ником уже существует", http.StatusBadRequest)
 		return
 	}
 	if err := h.UserService.RegisterUser(&user); err != nil {
@@ -62,17 +69,18 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// Login godoc
-// @Summary Вход пользователя
-// @Description Аутентификация пользователя и генерация JWT токена
+// Login - godoc
+// @Summary Login a user
+// @Description Login a user with username and password
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   credentials  body  models.User  true  "User Credentials"
-// @Success 200 {object} map[string]string "token"
-// @Failure 400 {string} string "Invalid input"
-// @Failure 401 {string} string "Invalid username or password"
-// @Router /login [post]
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User credentials"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/login [post]
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var credentials models.User
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
@@ -84,11 +92,32 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Неверный логин или пароль", http.StatusUnauthorized)
 		return
 	}
-	// Генерация JWT токена с использованием секретного ключа
+
 	token, err := auth.GenerateJWT(user.ID, h.JWTSecret, time.Hour*24)
 	if err != nil {
 		http.Error(w, "Ошибка при создании токена", http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]string{"access_token": token})
+}
+
+func (h *UserHandler) getUserIDFromToken(r *http.Request) (int, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return 0, fmt.Errorf("заголовок Authorization отсутствует")
+	}
+
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return 0, fmt.Errorf("неправильный формат заголовка Authorization")
+	}
+
+	tokenStr := parts[1]
+
+	claims, err := auth.ValidateJWT(tokenStr, h.JWTSecret)
+	if err != nil {
+		return 0, fmt.Errorf("ошибка валидации токена: %v", err)
+	}
+
+	return claims.UserID, nil
 }

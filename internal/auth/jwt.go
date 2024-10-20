@@ -10,7 +10,6 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// GenerateJWT создает JWT токен для указанного пользователя с заданным сроком действия и секретным ключом
 func GenerateJWT(userID int, secret string, duration time.Duration) (string, error) {
 	expirationTime := time.Now().Add(duration)
 	claims := &Claims{
@@ -23,7 +22,6 @@ func GenerateJWT(userID int, secret string, duration time.Duration) (string, err
 	return token.SignedString([]byte(secret))
 }
 
-// ValidateJWT проверяет JWT токен и возвращает claims, если токен действителен
 func ValidateJWT(tokenStr, secret string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {

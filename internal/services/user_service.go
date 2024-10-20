@@ -6,7 +6,6 @@ import (
 	"testHive/internal/repository"
 )
 
-// UserService служит для обработки операций с пользователями
 type UserService struct {
 	UserRepo *repository.UserRepository
 }
@@ -21,8 +20,16 @@ func (s *UserService) RegisterUser(user *models.User) error {
 		return err
 	}
 	user.PasswordHash = string(hashedPassword)
-	user.Password = "" // очищаем пароль
+	user.Password = ""
 	return s.UserRepo.CreateUser(user)
+}
+
+func (s *UserService) UserAlreadyExists(user *models.User) (*models.User, error) {
+	user, err := s.UserRepo.GetUserByUsername(user.Username)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (s *UserService) Authenticate(username, password string) (*models.User, error) {
