@@ -42,6 +42,3 @@ test-login:
 
 test-asset:
 	go test -count=1 ./testing/functional/create-get-delete_asset
-
-swagger:
-	swag init -g cmd/main.go

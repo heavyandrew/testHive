@@ -1,0 +1,156 @@
+{
+	"info": {
+		"_postman_id": "48ba449a-4cb0-4fa8-8df1-e9dd96065782",
+		"name": "testHive",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "32564825"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"pass1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/register"
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"pass1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "assets add",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"some_name1\",\n\t\"description\": \"desc\",\n\t\"price\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/assets"
+			},
+			"response": []
+		},
+		{
+			"name": "getAssets",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/assets",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"assets"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "some",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete assets",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": "localhost:8080/api/assets/1"
+			},
+			"response": []
+		},
+		{
+			"name": "buy asset",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"asset_id\": 4,\n\t\"price\": 1500\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/assets/buy"
+			},
+			"response": []
+		},
+		{
+			"name": "my assets",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8080/api/assets/my"
+			},
+			"response": []
+		}
+	]
+}
